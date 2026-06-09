@@ -174,7 +174,7 @@ input[type=text],select{width:100%;padding:8px 11px;border:1.5px solid #c8d5e8;b
     <strong>First time setup:</strong> Leave the Web App URL blank and complete an evaluation — it will still work locally. To enable automatic logging to Google Sheets, paste your Apps Script Web App URL below. See the setup instructions at the bottom of the results screen.
   </div>
   <label class="field">Apps Script Web App URL (optional)</label>
-  <input type="text" id="webAppUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec">
+  <input type="text" id="webAppUrl" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" value="https://script.google.com/macros/s/AKfycbwjlvJbOIOHblZ5oJ0gGWCPYxp7fhMqVy-sKernP7W-yQXKoimea-VyZWigzXY3sHo-/exec">
 </div>
 
 </div>
@@ -738,6 +738,7 @@ function retakeWrong(){
 
 // Init
 el('evalDate').value=new Date().toLocaleDateString();
+var _wau=document.getElementById('webAppUrl');if(_wau&&!_wau.value)_wau.value='https://script.google.com/macros/s/AKfycbwjlvJbOIOHblZ5oJ0gGWCPYxp7fhMqVy-sKernP7W-yQXKoimea-VyZWigzXY3sHo-/exec';
 
 // ── GOOGLE SHEETS LOGGING ────────────────────────────────
 var APPS_SCRIPT_CODE = `// 4Y052 EOC Evaluation Logger
