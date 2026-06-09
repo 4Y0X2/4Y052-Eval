@@ -743,7 +743,7 @@ el('evalDate').value=new Date().toLocaleDateString();
 var APPS_SCRIPT_CODE = `// 4Y052 EOC Evaluation Logger
 // Deploy as Web App: Execute as Me, Anyone can access
 
-function doPost(e) {
+function doGet(e) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('Evaluations');
@@ -758,7 +758,7 @@ function doPost(e) {
       sheet.setFrozenRows(1);
       [1,90,2,80,1,8,10,8,7,7,7,7,7].forEach(function(w,i){ sheet.setColumnWidth(i+1,w*7+40); });
     }
-    var data = JSON.parse(e.postData.contents);
+    var data = e.parameter;
     sheet.appendRow([
       data.date, data.trainee, data.rank, data.supervisor,
       data.scorePct, data.grade, data.readiness, data.questions, data.timeUsed,
@@ -771,11 +771,9 @@ function doPost(e) {
     else if (data.readiness === 'BORDERLINE') rdCell.setBackground('#fff8e1').setFontColor('#7a5a00');
     else rdCell.setBackground('#ffebee').setFontColor('#b71c1c');
     
-    return ContentService.createTextOutput(JSON.stringify({success:true}))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput('OK').setMimeType(ContentService.MimeType.TEXT);
   } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({success:false,error:err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput('ERROR: '+err.toString()).setMimeType(ContentService.MimeType.TEXT);
   }
 }`;
 
@@ -794,18 +792,17 @@ function logToSheets(resultData){
   if(!url || !url.includes('script.google.com')) return;
   var status = document.getElementById('logStatus');
   if(status){ status.style.display='block'; status.style.color='#1A56A7'; status.textContent='⏳ Logging results to Google Sheets...'; }
-  fetch(url, {
-    method:'POST',
-    body: JSON.stringify(resultData),
-    headers:{'Content-Type':'application/json'}
-  }).then(function(r){ return r.json(); })
-  .then(function(d){
-    if(status){
-      if(d.success){ status.style.color='#2e7d32'; status.textContent='✓ Results logged to Google Sheets successfully.'; }
-      else{ status.style.color='#c62828'; status.textContent='⚠ Logging failed: '+d.error; }
-    }
+  
+  // Use no-cors fetch with GET params to avoid CORS issues from GitHub Pages
+  var params = Object.keys(resultData).map(function(k){
+    return encodeURIComponent(k)+'='+encodeURIComponent(resultData[k]);
+  }).join('&');
+  
+  fetch(url + '?' + params, { method:'GET', mode:'no-cors' })
+  .then(function(){
+    if(status){ status.style.display='block'; status.style.color='#2e7d32'; status.textContent='✓ Results sent to Google Sheets.'; }
   }).catch(function(err){
-    if(status){ status.style.color='#c62828'; status.textContent='⚠ Could not reach Google Sheets. Results saved locally only.'; }
+    if(status){ status.style.color='#c62828'; status.textContent='⚠ Could not reach Google Sheets: '+err; }
   });
 }
 
