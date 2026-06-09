@@ -615,10 +615,10 @@ function buildResults(){
 
   // Readiness assessment
   var rdEl=el('readinessEl');
-  if(pct>=80){
+  if(pct>=90){
     rdEl.className='readiness pass';
     rdEl.innerHTML='&#10003; <strong>READY to challenge the EOC exam.</strong> Score of '+pct+'% demonstrates solid mastery of 4Y052 course material. Recommend scheduling the examination.';
-  } else if(pct>=70){
+  } else if(pct>=80){
     rdEl.className='readiness borderline';
     rdEl.innerHTML='&#9888; <strong>BORDERLINE readiness.</strong> Score of '+pct+'% shows adequate knowledge but focused review is recommended before attempting the EOC. See weak areas below.';
   } else {
@@ -645,7 +645,7 @@ function buildResults(){
   var weakMods=[];
   [1,2,3,4,5].forEach(function(m){
     var d=byMod[m];
-    if(d.total&&d.correct/d.total<0.70) weakMods.push({m:m,pct:Math.round(d.correct/d.total*100)});
+    if(d.total&&d.correct/d.total<0.80) weakMods.push({m:m,pct:Math.round(d.correct/d.total*100)});
   });
   weakMods.sort(function(a,b){return a.pct-b.pct;});
   var wbEl=el('weaknessBox');
@@ -665,7 +665,7 @@ function buildResults(){
   if(codeTA) codeTA.value = APPS_SCRIPT_CODE;
 
   // Log to Google Sheets
-  var rdVerdict = pct>=80?'READY':pct>=70?'BORDERLINE':'NOT READY';
+  var rdVerdict = pct>=90?'READY':pct>=80?'BORDERLINE':'NOT READY';
   var timeUsed = totalTime>0 ? Math.round((totalTime-timeLeft)/60) : 'N/A';
   var modPcts = {};
   [1,2,3,4,5].forEach(function(m){
