@@ -569,7 +569,14 @@ function selectOpt(i){
 }
 function jumpTo(i){curIdx=i;renderQ();}
 function goQ(d){if(curIdx+d>=0&&curIdx+d<examQs.length){curIdx+=d;renderQ();}}
-function toggleFlag(){flags[curIdx]=!flags[curIdx];renderQ();}
+function toggleFlag(){
+  flags[curIdx]=!flags[curIdx];
+  if(flags[curIdx]){
+    var pct=examQs.length?Math.round(calcLiveScore()/examQs.reduce(function(a,q){return a+q.pts;},0)*100):0;
+    logFlaggedQuestion(curIdx, pct);
+  }
+  renderQ();
+}
 
 function submitExam(){
   if(timerInterval) clearInterval(timerInterval);
@@ -747,6 +754,40 @@ var APPS_SCRIPT_CODE = `// 4Y052 EOC Evaluation Logger
 function doGet(e) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var type = e.parameter.type || 'result';
+    
+    if (type === 'flag') {
+      // Log flagged question to QA tab
+      var qaSheet = ss.getSheetByName('QA Review');
+      if (!qaSheet) {
+        qaSheet = ss.insertSheet('QA Review');
+        qaSheet.getRange(1,1,1,9).setValues([[
+          'Date Flagged','Trainee','Question #','Module','Question Text',
+          'Correct Answer','Trainee Answer','Trainee Score %','QA Status'
+        ]]);
+        qaSheet.getRange(1,1,1,9).setFontWeight('bold').setBackground('#c62828').setFontColor('#ffffff');
+        qaSheet.setFrozenRows(1);
+        qaSheet.setColumnWidth(1,110); qaSheet.setColumnWidth(3,80); qaSheet.setColumnWidth(4,70);
+        qaSheet.setColumnWidth(5,360); qaSheet.setColumnWidth(6,200); qaSheet.setColumnWidth(7,200);
+        qaSheet.setColumnWidth(8,100); qaSheet.setColumnWidth(9,120);
+      }
+      qaSheet.appendRow([
+        e.parameter.date,
+        e.parameter.trainee,
+        e.parameter.qnum,
+        'Module ' + e.parameter.module,
+        e.parameter.question,
+        e.parameter.correctAnswer,
+        e.parameter.traineeAnswer,
+        e.parameter.scorePct,
+        'Pending Review'
+      ]);
+      var lastRow = qaSheet.getLastRow();
+      qaSheet.getRange(lastRow, 9).setBackground('#fff8e1').setFontColor('#7a5a00').setFontWeight('bold');
+      return ContentService.createTextOutput('OK').setMimeType(ContentService.MimeType.TEXT);
+    }
+    
+    // Default: log evaluation result
     var sheet = ss.getSheetByName('Evaluations');
     if (!sheet) {
       sheet = ss.insertSheet('Evaluations');
@@ -765,7 +806,6 @@ function doGet(e) {
       data.scorePct, data.grade, data.readiness, data.questions, data.timeUsed,
       data.m1, data.m2, data.m3, data.m4, data.m5
     ]);
-    // Color the readiness cell
     var lastRow = sheet.getLastRow();
     var rdCell = sheet.getRange(lastRow, 7);
     if (data.readiness === 'READY') rdCell.setBackground('#e8f5e9').setFontColor('#1b5e20');
@@ -786,6 +826,29 @@ function copyScript(){
   var orig = btn.textContent;
   btn.textContent = '✓ Copied!';
   setTimeout(function(){ btn.textContent = orig; }, 2000);
+}
+
+function logFlaggedQuestion(qIdx, scorePct){
+  var url = (document.getElementById('webAppUrl')||{}).value;
+  if(!url || !url.includes('script.google.com')) return;
+  var q = examQs[qIdx];
+  if(!q) return;
+  var letters = ['A','B','C','D'];
+  var traineeAns = answers[qIdx] >= 0 ? letters[answers[qIdx]]+'. '+q.opts[answers[qIdx]] : 'Not answered';
+  var correctAns = letters[q.c]+'. '+q.opts[q.c];
+  var trainee = (document.getElementById('traineeName')||{}).value || 'Unknown';
+  var params = [
+    'type=flag',
+    'date='+encodeURIComponent(new Date().toLocaleDateString()),
+    'trainee='+encodeURIComponent(trainee),
+    'qnum='+encodeURIComponent(qIdx+1),
+    'module='+encodeURIComponent(q.m),
+    'question='+encodeURIComponent(q.q),
+    'correctAnswer='+encodeURIComponent(correctAns),
+    'traineeAnswer='+encodeURIComponent(traineeAns),
+    'scorePct='+encodeURIComponent(scorePct||'N/A')
+  ].join('&');
+  fetch(url+'?'+params, {method:'GET', mode:'no-cors'}).catch(function(){});
 }
 
 function logToSheets(resultData){
