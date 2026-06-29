@@ -417,7 +417,7 @@ function toggleMod(btn){
 
 function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
 
-function calcPts(n){var base=Math.floor(100/n),rem=100-(base*n),pts=[];for(var i=0;i<n;i++)pts.push(i<rem?base+1:base);return pts;}
+function calcPts(n){/* Each question is worth 1 point so the overall score always equals correct/total and matches the per-module breakdown. (Previously a 100-pt scale gave 0 points to every question past the 100th, inflating overall scores on large tests.) */var pts=[];for(var i=0;i<n;i++)pts.push(1);return pts;}
 
 function getPool(){
   var pool=[];
@@ -646,13 +646,14 @@ function buildResults(){
     if(answers[i]!==q.c) wrongQs.push(i);
   });
 
-  var pct=Math.round(score/total_pts*100);
+  var correctCount=examQs.filter(function(q,i){return answers[i]===q.c;}).length;
+  var pct=n?Math.round(correctCount/n*100):0;
   var grade=pct>=90?'A':pct>=80?'B':pct>=70?'C':pct>=60?'D':'F';
   var gradeColor=pct>=90?'#1b5e20':pct>=80?'#217070':pct>=70?'#c07000':pct>=60?'#B5451B':'#c62828';
 
   var name=el('traineeName').value.trim()||'Trainee';
   var rank=el('traineeRank').value.trim();
-  el('resultsMeta').textContent=(rank?rank+' ':'')+name+' | '+new Date().toLocaleDateString()+' | '+n+' Questions | 100-pt scale';
+  el('resultsMeta').textContent=(rank?rank+' ':'')+name+' | '+new Date().toLocaleDateString()+' | '+n+' Questions | '+pct+'% overall';
 
   // Score circle
   el('scoreCircle').style.background='linear-gradient(135deg,'+gradeColor+','+gradeColor+'cc)';
