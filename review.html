@@ -130,6 +130,15 @@ textarea{resize:vertical;min-height:70px}
     <span class="tb-label">Jump to ID</span>
     <input type="text" id="jumpId" placeholder="e.g. 918" style="width:90px" onkeydown="if(event.key==='Enter')jumpToId()">
     <button class="btn btn-prev" style="padding:6px 12px" onclick="jumpToId()">Go</button>
+    <span class="tb-label">Module</span>
+    <select id="moduleFilterLive" onchange="onModuleChange()">
+      <option value="all">All modules</option>
+      <option value="1">Module 1</option>
+      <option value="2">Module 2</option>
+      <option value="3">Module 3</option>
+      <option value="4">Module 4</option>
+      <option value="5">Module 5</option>
+    </select>
     <span class="tb-label">Show</span>
     <select id="statusFilter" onchange="applyFilter()">
       <option value="all">All questions</option>
@@ -268,6 +277,7 @@ function startReview(){
   webUrl=el('webAppUrl').value.trim();
   loadLocal();
   buildPool();
+  var mfl=el('moduleFilterLive'); if(mfl) mfl.value=el('moduleFilter').value;
   el('reviewerLine').textContent=reviewer+' | '+revDate+' | '+pool.length+' questions';
   el('setupScreen').style.display='none';
   el('reviewScreen').style.display='block';
@@ -340,13 +350,16 @@ function updateMap(){
 }
 
 function refreshCounts(){
-  var e=0,g=0,d=0;
-  for(var k in reviews){ var v=reviews[k].difficulty; if(v==='easy')e++; else if(v==='good')g++; else if(v==='difficult')d++; }
+  var ids={}; pool.forEach(function(q){ids[q.id]=1;});
+  var e=0,g=0,d=0,reviewed=0;
+  for(var k in reviews){
+    if(!ids[k]) continue;                 // only count questions in the current view
+    var v=reviews[k].difficulty;
+    if(v){ reviewed++; if(v==='easy')e++; else if(v==='good')g++; else if(v==='difficult')d++; }
+  }
   el('cEasy').textContent='Easy: '+e; el('cGood').textContent='Good: '+g; el('cDiff').textContent='Difficult: '+d;
-  var reviewed=Object.keys(reviews).filter(function(k){return reviews[k].difficulty;}).length;
-  el('progPill').textContent='Reviewed '+reviewed+' / '+RAW.length;
-  var inpool=pool.filter(function(q){return reviews[q.id]&&reviews[q.id].difficulty;}).length;
-  el('progFill').style.width=(pool.length?(inpool/pool.length*100):0)+'%';
+  el('progPill').textContent='Reviewed '+reviewed+' / '+pool.length;
+  el('progFill').style.width=(pool.length?(reviewed/pool.length*100):0)+'%';
 }
 
 function render(){
@@ -423,6 +436,10 @@ function jumpToId(){
   var idx=pool.findIndex(function(q){return String(q.id)===v;});
   if(idx>=0){curIdx=idx; saveLocal(); render(); window.scrollTo(0,0);} else alert('ID '+v+' is not in the current view.');
 }
+function onModuleChange(){
+  el('moduleFilter').value=el('moduleFilterLive').value;
+  applyFilter();
+}
 function applyFilter(){
   var f=el('statusFilter').value;
   buildPool();
@@ -430,7 +447,9 @@ function applyFilter(){
   else if(f==='reviewed') pool=pool.filter(function(q){return reviews[q.id]&&reviews[q.id].difficulty;});
   else if(f==='difficult') pool=pool.filter(function(q){return reviews[q.id]&&reviews[q.id].difficulty==='difficult';});
   curIdx=0;
-  if(!pool.length){ el('qmap').innerHTML='<div style="font-size:0.82em;color:#888;padding:8px">No questions match this filter.</div>'; el('qText').textContent='\u2014'; el('optsDiv').innerHTML=''; el('posLabel').textContent='0 / 0'; return; }
+  var modv=el('moduleFilter').value;
+  el('reviewerLine').textContent=reviewer+' | '+revDate+' | '+(modv==='all'?'all modules':'Module '+modv)+' — '+pool.length+' questions';
+  if(!pool.length){ el('qmap').innerHTML='<div style="font-size:0.82em;color:#888;padding:8px">No questions match this filter.</div>'; el('qText').textContent='\u2014'; el('optsDiv').innerHTML=''; el('posLabel').textContent='0 / 0'; el('progPill').textContent='Reviewed 0 / 0'; return; }
   buildMap(); render();
 }
 </script>
