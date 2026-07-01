@@ -179,17 +179,6 @@ textarea{resize:vertical;min-height:70px}
   </div>
 
   <!-- Sheets setup -->
-  <div class="setup-card">
-    <h3>&#9881; Google Sheets Setup (one-time)</h3>
-    <ol>
-      <li>Open your evaluation Google Sheet (or create one), then go to <strong>Extensions &rarr; Apps Script</strong>.</li>
-      <li>If you already deployed the script from the evaluation tool, replace it with the version below (it adds a "Question Review" tab and keeps the others working), then re-deploy.</li>
-      <li><strong>Deploy &rarr; New deployment &rarr; Web app</strong> &mdash; Execute as: <strong>Me</strong>, Who has access: <strong>Anyone</strong>.</li>
-      <li>Copy the Web App URL into the box on the setup screen.</li>
-    </ol>
-    <textarea class="codebox" id="appsScriptCode" readonly></textarea>
-    <button class="copy-btn" onclick="copyScript()">&#128203; Copy Script</button>
-  </div>
 </div>
 </div>
 
@@ -258,7 +247,7 @@ function saveLocal(){
 }
 
 el('revDate').value=new Date().toLocaleDateString();
-el('appsScriptCode').value=document.getElementById('appsScriptSrc').textContent;
+var _asc=document.getElementById('appsScriptCode'); if(_asc)_asc.value=(document.getElementById('appsScriptSrc')||{}).textContent||'';
 
 function copyScript(){
   var ta=el('appsScriptCode'); ta.select(); document.execCommand('copy');
