@@ -81,7 +81,7 @@ textarea{resize:vertical;min-height:70px}
 <!-- ============ SETUP ============ -->
 <div id="setupScreen">
 <header>
-  <h1>4Y052 Question Bank Review Tool <span style="font-size:0.6em;opacity:0.7;font-weight:400">build 2.2</span></h1>
+  <h1>4Y052 Question Bank Review Tool <span style="font-size:0.6em;opacity:0.7;font-weight:400">build 2.3</span></h1>
   <p>Evaluate every question &mdash; rate difficulty, add comments, log to Google Sheets for QA review</p>
 </header>
 <main>
@@ -115,7 +115,7 @@ textarea{resize:vertical;min-height:70px}
 <div style="max-width:920px;margin:16px auto;padding:0 14px">
   <div class="rv-top">
     <div>
-      <div class="title">Question Bank Review <span style="font-size:0.72em;opacity:0.7;font-weight:400">build 2.2</span></div>
+      <div class="title">Question Bank Review <span style="font-size:0.72em;opacity:0.7;font-weight:400">build 2.3</span></div>
       <div id="reviewerLine" style="font-size:0.8em;opacity:0.85;margin-top:2px"></div>
     </div>
     <div class="meta">
@@ -127,9 +127,9 @@ textarea{resize:vertical;min-height:70px}
   <div id="resumeBanner" style="display:none;background:#e8f0fb;border-bottom:1.5px solid #1A56A7;color:#0d3b7a;font-size:0.84em;font-weight:600;padding:10px 18px"></div>
 
   <div class="toolbar">
-    <span class="tb-label">Jump to ID</span>
-    <input type="text" id="jumpId" placeholder="e.g. 918" style="width:90px" onkeydown="if(event.key==='Enter')jumpToId()">
-    <button class="btn btn-prev" style="padding:6px 12px" onclick="jumpToId()">Go</button>
+    <span class="tb-label">Jump to #</span>
+    <input type="text" id="jumpId" placeholder="e.g. 25" style="width:80px" onkeydown="if(event.key==='Enter')jumpToNum()">
+    <button class="btn btn-prev" style="padding:6px 12px" onclick="jumpToNum()">Go</button>
     <span class="tb-label">Module</span>
     <select id="moduleFilterLive" onchange="onModuleChange()">
       <option value="all">All modules</option>
@@ -336,7 +336,7 @@ function diffClass(id){ var r=reviews[id]; return r&&r.difficulty?r.difficulty:'
 function buildMap(){
   var h='';
   for(var i=0;i<pool.length;i++){
-    h+='<div class="dot" id="dot'+i+'" onclick="jumpTo('+i+')" title="ID '+pool[i].id+'">'+pool[i].id+'</div>';
+    h+='<div class="dot" id="dot'+i+'" onclick="jumpTo('+i+')" title="Q '+(i+1)+' — ID '+pool[i].id+'">'+(i+1)+'</div>';
   }
   el('qmap').innerHTML=h;
   updateMap();
@@ -365,7 +365,7 @@ function refreshCounts(){
 function render(){
   var q=pool[curIdx]; if(!q)return;
   el('posLabel').textContent=(curIdx+1)+' / '+pool.length;
-  el('qIdLabel').textContent='Question ID '+q.id;
+  el('qIdLabel').textContent='Question '+(curIdx+1)+' of '+pool.length+'  ·  ID '+q.id;
   el('qModBadge').textContent='Module '+q.m+': '+MN[q.m]; el('qModBadge').style.background=MC[q.m];
   el('qTypeBadge').textContent=TYPE[q.s]||'MCQ';
   el('qText').textContent=q.q;
@@ -431,6 +431,11 @@ function saveAndNext(){
 
 function goRel(d){ var ni=curIdx+d; if(ni>=0&&ni<pool.length){curIdx=ni; saveLocal(); render(); window.scrollTo(0,0);} }
 function jumpTo(i){ curIdx=i; saveLocal(); render(); window.scrollTo(0,0); }
+function jumpToNum(){
+  var v=parseInt(el('jumpId').value.trim(),10);
+  if(!v||v<1||v>pool.length){ alert('Enter a number between 1 and '+pool.length+' (the current view has '+pool.length+' questions).'); return; }
+  curIdx=v-1; saveLocal(); render(); window.scrollTo(0,0);
+}
 function jumpToId(){
   var v=el('jumpId').value.trim(); if(!v)return;
   var idx=pool.findIndex(function(q){return String(q.id)===v;});
