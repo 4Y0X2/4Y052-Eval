@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4Y052 Phase 2 Training — Development Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#10141A;
+    --panel:#181E26;
+    --panel-raised:#1F2731;
+    --panel-hi:#262F3A;
+    --line:#2B3542;
+    --line-soft:#212A34;
+    --text:#E7EBF0;
+    --text-mid:#9CA8B5;
+    --text-dim:#616E7C;
+    --amber:#E7A23D;
+    --amber-soft:rgba(231,162,61,0.14);
+    --green:#4FB783;
+    --green-soft:rgba(79,183,131,0.14);
+    --blue:#5B8FEF;
+    --blue-soft:rgba(91,143,239,0.14);
+    --slate:#4A5560;
+    --slate-soft:rgba(74,85,96,0.35);
+    --red-soft:rgba(224,110,96,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0) 0 0/22px 22px,
+      var(--void);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    padding:28px 20px 60px;
+  }
+  .wrap{max-width:1280px;margin:0 auto;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:24px;
+    flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+    padding-bottom:20px;
+    margin-bottom:28px;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:0 0 8px;
+  }
+  h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:28px;
+    font-weight:700;
+    margin:0 0 6px;
+    letter-spacing:-.01em;
+  }
+  .sub{color:var(--text-mid);font-size:13.5px;max-width:520px;line-height:1.5;margin:0;}
+  .overall{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 20px;
+  }
+  .ring{position:relative;width:64px;height:64px;flex:none;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring-label{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;
+  }
+  .overall-meta .num{font-family:'Space Grotesk';font-size:20px;font-weight:700;line-height:1;}
+  .overall-meta .lbl{font-size:11px;color:var(--text-mid);margin-top:4px;text-transform:uppercase;letter-spacing:.08em;}
+
+  /* ---------- PIPELINE ---------- */
+  .pipeline-section{margin-bottom:30px;}
+  .section-title{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--text-dim);
+    margin:0 0 12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-title::after{content:"";flex:1;height:1px;background:var(--line);}
+  .pipeline{
+    display:grid;
+    grid-template-columns:repeat(8, 1fr);
+    gap:0;
+    position:relative;
+  }
+  .pipeline::before{
+    content:"";
+    position:absolute;
+    top:38px;left:5%;right:5%;
+    height:1px;
+    background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 12px);
+    z-index:0;
+  }
+  .stage{
+    position:relative;
+    z-index:1;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:14px 10px 12px;
+    margin:0 4px;
+    cursor:pointer;
+    transition:border-color .15s, transform .15s, background .15s;
+    text-align:left;
+  }
+  .stage:hover{border-color:var(--text-dim);transform:translateY(-2px);}
+  .stage.active{border-color:var(--amber);background:var(--panel-hi);}
+  .stage-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .stage-idx{
+    font-family:'IBM Plex Mono';font-size:10px;color:var(--text-dim);
+    border:1px solid var(--line);border-radius:4px;padding:2px 5px;
+  }
+  .stage-pct{font-family:'Space Grotesk';font-weight:700;font-size:17px;}
+  .stage-name{
+    font-size:12px;font-weight:600;color:var(--text);
+    margin-bottom:10px;line-height:1.25;min-height:30px;
+  }
+  .stage-bar{height:4px;border-radius:2px;background:var(--line-soft);overflow:hidden;margin-bottom:8px;}
+  .stage-bar-fill{height:100%;border-radius:2px;background:var(--green);transition:width .3s;}
+  .stage-counts{display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{
+    font-family:'IBM Plex Mono';font-size:9.5px;padding:1px 5px;border-radius:3px;
+    color:var(--text-mid);border:1px solid var(--line-soft);
+  }
+
+  /* ---------- CONTROLS ---------- */
+  .controls{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+    margin-bottom:14px;
+  }
+  .search-box{
+    flex:1;min-width:200px;
+    display:flex;align-items:center;gap:8px;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;
+  }
+  .search-box input{
+    background:none;border:none;outline:none;color:var(--text);
+    font-family:'IBM Plex Sans';font-size:13px;width:100%;
+  }
+  .search-box input::placeholder{color:var(--text-dim);}
+  select{
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;
+    color:var(--text);font-family:'IBM Plex Sans';font-size:13px;padding:9px 10px;outline:none;
+  }
+  .clear-filter{
+    background:var(--amber-soft);border:1px solid var(--amber);color:var(--amber);
+    border-radius:8px;padding:9px 14px;font-size:12.5px;font-family:'IBM Plex Mono';
+    cursor:pointer;display:none;align-items:center;gap:6px;
+  }
+  .clear-filter.show{display:inline-flex;}
+  .result-count{font-family:'IBM Plex Mono';font-size:11.5px;color:var(--text-dim);white-space:nowrap;}
+
+  /* ---------- TABLE ---------- */
+  .table-scroll{
+    border:1px solid var(--line);border-radius:10px;overflow:auto;
+    background:var(--panel);margin-bottom:36px;
+  }
+  table{border-collapse:collapse;width:100%;min-width:1180px;}
+  thead th{
+    position:sticky;top:0;background:var(--panel-raised);
+    font-family:'IBM Plex Mono';font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--text-mid);text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);
+    z-index:2;white-space:nowrap;
+  }
+  thead th.stage-col{text-align:center;}
+  .area-row td{
+    background:var(--panel-raised);
+    font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--text-mid);padding:8px 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  tbody tr.data-row{border-bottom:1px solid var(--line-soft);}
+  tbody tr.data-row:hover{background:var(--panel-hi);}
+  td{padding:8px 10px;font-size:12.5px;vertical-align:middle;}
+  td.sts{font-family:'IBM Plex Mono';color:var(--text-mid);font-size:11.5px;white-space:nowrap;}
+  td.task{color:var(--text);min-width:220px;}
+  td.stage-col{text-align:center;}
+  .pill{
+    font-family:'IBM Plex Mono';font-size:10px;font-weight:500;
+    padding:4px 8px;border-radius:20px;border:1px solid transparent;
+    cursor:pointer;white-space:nowrap;display:inline-block;user-select:none;
+    transition:filter .1s;
+  }
+  .pill:hover{filter:brightness(1.15);}
+  .pill.complete{background:var(--green-soft);color:var(--green);border-color:rgba(79,183,131,.35);}
+  .pill.draft{background:var(--blue-soft);color:var(--blue);border-color:rgba(91,143,239,.35);}
+  .pill.inprogress{background:var(--amber-soft);color:var(--amber);border-color:rgba(231,162,61,.35);}
+  .pill.notstarted{background:var(--slate-soft);color:var(--text-dim);border-color:var(--line);}
+  td input[type=text], td input[type=date]{
+    background:none;border:1px solid transparent;border-radius:5px;color:var(--text-mid);
+    font-family:'IBM Plex Mono';font-size:11px;padding:4px 6px;width:100%;outline:none;
+  }
+  td input[type=text]:hover, td input[type=date]:hover{border-color:var(--line);}
+  td input[type=text]:focus, td input[type=date]:focus{border-color:var(--blue);color:var(--text);}
+  td.notes input{font-family:'IBM Plex Sans';min-width:140px;}
+
+  /* ---------- STUDY AIDS ---------- */
+  .aids-grid{display:grid;grid-template-columns:1.3fr repeat(6,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+  .aids-grid > div{background:var(--panel);padding:10px 12px;font-size:12px;}
+  .aids-grid .h{background:var(--panel-raised);font-family:'IBM Plex Mono';font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-mid);}
+  .aids-grid .mod{color:var(--text);font-size:12px;}
+  .aids-grid .stat{text-align:center;}
+
+  footer{color:var(--text-dim);font-size:11px;font-family:'IBM Plex Mono';text-align:center;padding-top:8px;}
+
+  @media (max-width:900px){
+    .pipeline{grid-template-columns:repeat(4,1fr);gap:8px;}
+    .pipeline::before{display:none;}
+    table{min-width:900px;}
+    .aids-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <p class="eyebrow">4Y052 · Dental Laboratory Technician</p>
+      <h1>Phase 2 Training — Development Tracker</h1>
+      <p class="sub">Live build status across the production pipeline. Click any stage below to filter the roster to what's outstanding, or click a status pill to advance it.</p>
+    </div>
+    <div class="overall">
+      <div class="ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="27" fill="none" stroke="#2B3542" stroke-width="7"/>
+          <circle id="ringFill" cx="32" cy="32" r="27" fill="none" stroke="#4FB783" stroke-width="7" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="169.6"/>
+        </svg>
+        <div class="ring-label" id="ringLabel">0%</div>
+      </div>
+      <div class="overall-meta">
+        <div class="num" id="overallNum">0 / 0</div>
+        <div class="lbl">Line items complete</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="pipeline-section">
+    <p class="section-title">Production pipeline</p>
+    <div class="pipeline" id="pipeline"></div>
+  </div>
+
+  <div class="controls">
+    <div class="search-box">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#616E7C" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Search STS number or task name…">
+    </div>
+    <select id="areaFilter"><option value="">All areas</option></select>
+    <span class="clear-filter" id="clearStage">✕ <span id="clearStageLabel"></span></span>
+    <span class="result-count" id="resultCount"></span>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>STS</th>
+          <th>Task</th>
+          <th class="stage-col">QTP</th>
+          <th class="stage-col">SOP</th>
+          <th class="stage-col">Practice&nbsp;Case</th>
+          <th class="stage-col">Images</th>
+          <th class="stage-col">Proc.&nbsp;Guide</th>
+          <th class="stage-col">Syllabus</th>
+          <th class="stage-col">Lecture</th>
+          <th class="stage-col">Video</th>
+          <th>Start</th>
+          <th>Due</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <p class="section-title">Module study aids</p>
+  <div class="aids-grid" id="aidsGrid"></div>
+
+  <footer>4Y052 PHASE 2 TRAINING · DEVELOPMENT TRACKER · STATUS UPDATES ARE LOCAL TO THIS SESSION</footer>
+</div>
+
+<script>
+const STAGES = [
+  {key:'qtp', name:'QTP', full:'QTP'},
+  {key:'sop', name:'SOP', full:'SOP'},
+  {key:'pc',  name:'Practice Case', full:'Practice Case'},
+  {key:'img', name:'Images', full:'Images'},
+  {key:'pg',  name:'Procedural Guide', full:'Procedural Guide'},
+  {key:'syl', name:'Syllabus', full:'Syllabus'},
+  {key:'lec', name:'Lecture', full:'Lecture'},
+  {key:'vid', name:'Video', full:'Video'},
+];
+const STATUS_CYCLE = ['Not started','Draft','In progress','Complete'];
+const STATUS_CLASS = {'Not started':'notstarted','Draft':'draft','In progress':'inprogress','Complete':'complete'};
+
+const ROWS = [{"sts":"2.6.1","task":"Microbiology","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.6.2","task":"Bloodborne Pathogens","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.6.3.1","task":"Perform cleaning","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.6.3.2","task":"Perform disinfection","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.6.4.1","task":"Perform techniques","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.6.4.2","task":"Validate infection control procedures","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.6.5","task":"Perform hand hygiene","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.6.6","task":"Don and doff personal protective equipment","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.7","task":"Interpret and validate Laboratory Work Authorization and","area":"General Lab (2.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.8.1","task":"Impressions","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.8.2","task":"Casts","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.8.3","task":"Prostheses","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.9.1","task":"Diagnostics","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.9.4","task":"Full arch fixed master cast","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.9.5","task":"Dual arch casts","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.9.8","task":"Duplicate casts","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.10.2","task":"Mount casts using arbitrary method","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.10.3","task":"Mount casts using facebow transfer technique","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.10.5","task":"Perform cast equilibration","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.10.6","task":"Perform digital articulation","area":"General Lab (2.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.10.7","task":"Perform digital cast alignment","area":"General Lab (2.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"2.11","task":"Repair removable prostheses","area":"General Lab (2.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.3.1","task":"Verify basic shade","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.3.2","task":"Identify custom shade selection/characterization","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.6","task":"Fabricate single unit metal restorations","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.7","task":"Fabricate single unit metal- ceramic restorations","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.9","task":"Fabricate metal-ceramic FDP","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.11.2","task":"Contacts","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.15.1","task":"Soft tissue master cast","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.15.2","task":"Implant custom abutment","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.15.3","task":"Implant abutment supported restoration","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.15.4","task":"Screw retained implant crown","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.1","task":"Laboratory acquisition of digital image","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.2","task":"Design fixed restoration","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.3","task":"Design implant restoration","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.3.1","task":"Angulation of screw channel access","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.4","task":"Design implant custom abutment","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.5","task":"Same day crown (waiting for MFR)","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.6","task":"Design fixed dental prosthesis","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.7","task":"Design screw-retained fixed dental prosthesis","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.8","task":"Fabricate fixed restoration","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.9","task":"Fabricate implant restoration","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.10","task":"Fabricate implant custom abutment","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.11","task":"Fabricate fixed dental prosthesis","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"3.16.12","task":"Fabricated screw-retained fixed dental prosthesis","area":"Fixed / Implant / CAD-CAM (3.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.2","task":"Athletic mouthguard","area":"Treatment & Ortho Appliances (4.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.3","task":"Pressure formed retainer","area":"Treatment & Ortho Appliances (4.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.4","task":"Hard nightguard","area":"Treatment & Ortho Appliances (4.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.11","task":"Custom impression trays","area":"Treatment & Ortho Appliances (4.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.13.1","task":"Design hard nightguard","area":"Treatment & Ortho Appliances (4.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.13.2","task":"Design surgical template","area":"Treatment & Ortho Appliances (4.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.13.3","task":"Fabricate hard nightguard","area":"Treatment & Ortho Appliances (4.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"4.13.4","task":"Fabricate surgical template","area":"Treatment & Ortho Appliances (4.x)","qtp":"Draft","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"6.3","task":"Fabricate Hawley retainer","area":"Orthodontic (6.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"7.1.1","task":"Create model","area":"Digital Modeling (7.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"7.1.2","task":"Create digital restoration","area":"Digital Modeling (7.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"7.1.3","task":"Export digital file","area":"Digital Modeling (7.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"7.2","task":"Plan digital implant","area":"Digital Modeling (7.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"7.3","task":"Print 3D object","area":"Digital Modeling (7.x)","qtp":"Complete","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"8.1.1","task":"Establish laboratory fabrication standards","area":"Laboratory Administration (8.x)","qtp":"Not started","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"8.1.2","task":"Inspect received clinical casework","area":"Laboratory Administration (8.x)","qtp":"Not started","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"8.1.3","task":"Inspect completed laboratory casework","area":"Laboratory Administration (8.x)","qtp":"Not started","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""},{"sts":"8.3","task":"Managing the Dental Registry of Precious Metals and Alloys","area":"Laboratory Administration (8.x)","qtp":"Not started","sop":"Not started","pc":"Not started","img":"Not started","pg":"Draft","syl":"Draft","lec":"Draft","vid":"Not started","start":"","due":"","notes":""}];
+
+let state = {
+  search:'',
+  area:'',
+  stageFilter:null // {key, name}
+};
+
+function nextStatus(s){
+  const i = STATUS_CYCLE.indexOf(s);
+  return STATUS_CYCLE[(i+1) % STATUS_CYCLE.length];
+}
+
+function computeStageStats(key){
+  let counts = {'Complete':0,'In progress':0,'Draft':0,'Not started':0};
+  ROWS.forEach(r => counts[r[key]] = (counts[r[key]]||0)+1);
+  const total = ROWS.length;
+  const pct = total ? Math.round((counts['Complete']/total)*100) : 0;
+  return {counts, total, pct};
+}
+
+function renderPipeline(){
+  const el = document.getElementById('pipeline');
+  el.innerHTML = STAGES.map((s, idx) => {
+    const {counts, total, pct} = computeStageStats(s.key);
+    const active = state.stageFilter && state.stageFilter.key === s.key;
+    return `
+      <div class="stage ${active?'active':''}" data-key="${s.key}" data-name="${s.full}">
+        <div class="stage-top">
+          <span class="stage-idx">0${idx+1}</span>
+          <span class="stage-pct">${pct}%</span>
+        </div>
+        <div class="stage-name">${s.name}</div>
+        <div class="stage-bar"><div class="stage-bar-fill" style="width:${pct}%"></div></div>
+        <div class="stage-counts">
+          <span class="chip">${counts['Complete']} done</span>
+          <span class="chip">${total - counts['Complete']} left</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  el.querySelectorAll('.stage').forEach(node => {
+    node.addEventListener('click', () => {
+      const key = node.dataset.key, name = node.dataset.name;
+      if(state.stageFilter && state.stageFilter.key === key){
+        state.stageFilter = null;
+      } else {
+        state.stageFilter = {key, name};
+      }
+      renderAll();
+    });
+  });
+}
+
+function renderOverall(){
+  const totalCells = ROWS.length * STAGES.length;
+  let complete = 0;
+  ROWS.forEach(r => STAGES.forEach(s => { if(r[s.key] === 'Complete') complete++; }));
+  const pct = totalCells ? Math.round((complete/totalCells)*100) : 0;
+  const circumference = 169.6;
+  document.getElementById('ringFill').style.strokeDashoffset = circumference - (circumference * pct/100);
+  document.getElementById('ringLabel').textContent = pct + '%';
+  document.getElementById('overallNum').textContent = complete + ' / ' + totalCells;
+}
+
+function populateAreaFilter(){
+  const sel = document.getElementById('areaFilter');
+  if(sel.options.length > 1) return;
+  const areas = [...new Set(ROWS.map(r=>r.area))];
+  areas.forEach(a => {
+    const o = document.createElement('option');
+    o.value = a; o.textContent = a;
+    sel.appendChild(o);
+  });
+}
+
+function filteredRows(){
+  return ROWS.filter(r => {
+    if(state.search){
+      const q = state.search.toLowerCase();
+      if(!r.sts.toLowerCase().includes(q) && !r.task.toLowerCase().includes(q)) return false;
+    }
+    if(state.area && r.area !== state.area) return false;
+    if(state.stageFilter && r[state.stageFilter.key] === 'Complete') return false;
+    return true;
+  });
+}
+
+function renderTable(){
+  const rows = filteredRows();
+  const tbody = document.getElementById('tbody');
+  let html = '';
+  let lastArea = null;
+  rows.forEach((r) => {
+    if(r.area !== lastArea){
+      html += `<tr class="area-row"><td colspan="12">${r.area}</td></tr>`;
+      lastArea = r.area;
+    }
+    const realIdx = ROWS.indexOf(r);
+    html += `<tr class="data-row" data-idx="${realIdx}">
+      <td class="sts">${r.sts}</td>
+      <td class="task">${r.task}</td>
+      ${STAGES.map(s => `<td class="stage-col"><span class="pill ${STATUS_CLASS[r[s.key]]}" data-key="${s.key}">${r[s.key]}</span></td>`).join('')}
+      <td><input type="date" value="${r.start||''}" data-field="start"></td>
+      <td><input type="date" value="${r.due||''}" data-field="due"></td>
+      <td class="notes"><input type="text" value="${(r.notes||'').replace(/"/g,'&quot;')}" placeholder="—" data-field="notes"></td>
+    </tr>`;
+  });
+  tbody.innerHTML = html || `<tr><td colspan="12" style="padding:24px;text-align:center;color:var(--text-dim);font-family:'IBM Plex Mono';font-size:12px;">No tasks match the current filters.</td></tr>`;
+
+  tbody.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', (e) => {
+      const tr = e.target.closest('tr');
+      const idx = parseInt(tr.dataset.idx,10);
+      const key = e.target.dataset.key;
+      ROWS[idx][key] = nextStatus(ROWS[idx][key]);
+      renderAll();
+    });
+  });
+  tbody.querySelectorAll('input[data-field]').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      const tr = e.target.closest('tr');
+      const idx = parseInt(tr.dataset.idx,10);
+      ROWS[idx][e.target.dataset.field] = e.target.value;
+    });
+  });
+
+  document.getElementById('resultCount').textContent = rows.length + ' of ' + ROWS.length + ' tasks';
+}
+
+function renderClearChip(){
+  const chip = document.getElementById('clearStage');
+  const label = document.getElementById('clearStageLabel');
+  if(state.stageFilter){
+    chip.classList.add('show');
+    label.textContent = 'Showing incomplete: ' + state.stageFilter.name;
+  } else {
+    chip.classList.remove('show');
+  }
+}
+
+function renderAll(){
+  renderPipeline();
+  renderOverall();
+  renderTable();
+  renderClearChip();
+}
+
+const AIDS = [
+  {mod:'Module 1 — Safety, Anatomy, Materials', vals:['Complete','Complete','Complete','Complete','Complete','Complete']},
+  {mod:'Module 2 — Oral Anatomy & Physiology / Materials', vals:['Complete','Complete','Complete','Complete','Complete','Complete']},
+  {mod:'Module 3 — General Lab & Ortho Appliances', vals:['Complete','Complete','Complete','Complete','Complete','Complete']},
+  {mod:'Module 4 — Removable Partial Dentures', vals:['Complete','Complete','Complete','Complete','Complete','Complete']},
+  {mod:'Module 5 — Fixed, Implant & Digital', vals:['Complete','Complete','Complete','Complete','Complete','Complete']},
+  {mod:'Comprehensive Review Tool (all modules)', vals:['Complete','—','—','—','—','—']},
+];
+function renderAids(){
+  const headers = ['Module','Note-Taking Guide','Study Guide','MCQ','True / False','Fill-in-Blank','Short Answer'];
+  let html = headers.map(h => `<div class="h">${h}</div>`).join('');
+  AIDS.forEach(row => {
+    html += `<div class="mod">${row.mod}</div>`;
+    html += row.vals.map(v => `<div class="stat"><span class="pill ${v==='Complete'?'complete':'notstarted'}" style="cursor:default;">${v}</span></div>`).join('');
+  });
+  document.getElementById('aidsGrid').innerHTML = html;
+}
+
+document.getElementById('searchInput').addEventListener('input', e => { state.search = e.target.value; renderTable(); });
+document.getElementById('areaFilter').addEventListener('change', e => { state.area = e.target.value; renderTable(); });
+document.getElementById('clearStage').addEventListener('click', () => { state.stageFilter = null; renderAll(); });
+
+populateAreaFilter();
+renderAids();
+renderAll();
+</script>
+</body>
+</html>
