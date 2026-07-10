@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lackland Dental Support Squadron Laboratory — Org Chart</title>
+<style>
+  :root{
+    --border:#c9cdd3;
+    --border-strong:#8b93a1;
+    --bg:#ffffff;
+    --bg-secondary:#f4f6f8;
+    --bg-lead:#eaf2ff;
+    --bg-ncoic:#eafaf0;
+    --text:#1b1f24;
+    --text-secondary:#5b6472;
+    --text-tertiary:#8a93a1;
+    --accent-info:#2b6cb0;
+    --accent-success:#1f9d55;
+    --accent-warning:#b7791f;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg-secondary);
+    color:var(--text);
+    margin:0;
+    padding:24px;
+  }
+  h1{font-size:18px;margin:0 0 4px;}
+  p.sub{font-size:13px;color:var(--text-secondary);margin:0 0 20px;}
+  .toolbar{margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;}
+  .toolbar button{
+    font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--border-strong);
+    background:var(--bg);cursor:pointer;
+  }
+  .toolbar button:hover{border-color:var(--accent-info);color:var(--accent-info);}
+  .orgchart{overflow-x:auto;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:24px 8px;}
+  .orgchart ul{padding-top:20px;position:relative;display:flex;justify-content:center;margin:0;}
+  .orgchart li{display:flex;flex-direction:column;align-items:center;list-style-type:none;position:relative;padding:20px 10px 0 10px;}
+  .orgchart li::before,.orgchart li::after{content:'';position:absolute;top:0;right:50%;border-top:1px solid var(--border);width:50%;height:20px;}
+  .orgchart li::after{right:auto;left:50%;border-left:1px solid var(--border);}
+  .orgchart li:only-child::after,.orgchart li:only-child::before{display:none;}
+  .orgchart li:only-child{padding-top:0;}
+  .orgchart li:first-child::before,.orgchart li:last-child::after{border:0 none;}
+  .orgchart li:last-child::before{border-right:1px solid var(--border);border-radius:0 6px 0 0;}
+  .orgchart li:first-child::after{border-radius:6px 0 0 0;}
+  .orgchart ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:1px solid var(--border);width:0;height:20px;}
+  .box{border:1px solid var(--border);padding:8px 14px;border-radius:8px;display:inline-block;background:var(--bg-secondary);min-width:160px;text-align:center;position:relative;}
+  .box .t,.box .s,.box .binder{display:block;outline:none;}
+  .box .t{font-size:14px;font-weight:600;color:var(--text);}
+  .box .s{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+  .box .binder{font-size:11px;color:var(--text-tertiary);margin-top:4px;}
+  .box .t:focus,.box .s:focus,.box .binder:focus,.prog span:focus{background:#fff3cd;}
+  .box.lead{background:var(--bg-lead);border-color:var(--accent-info);}
+  .box.lead .t{color:var(--accent-info);}
+  .box.ncoic{background:var(--bg-ncoic);border-color:var(--accent-success);}
+  .box.ncoic .t{color:var(--accent-success);}
+  .programs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;list-style:none;margin:20px 0 0;padding:16px;max-width:420px;border:1px solid var(--border);border-radius:8px;background:var(--bg);}
+  .programs.collapsed{display:none;}
+  .prog{border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);background:var(--bg-secondary);min-width:110px;text-align:center;position:relative;}
+  .prog .name{display:block;font-weight:500;outline:none;}
+  .prog .role{display:block;font-size:11px;color:var(--text-tertiary);margin-top:2px;outline:none;}
+  .prog .flag{display:block;font-size:11px;color:var(--accent-warning);margin-top:2px;font-weight:600;outline:none;}
+  .prog .remove{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:#e0453c;color:#fff;font-size:10px;line-height:16px;text-align:center;cursor:pointer;border:none;padding:0;}
+  .toggle-btn{margin-top:10px;font-size:12px;color:var(--accent-info);background:none;border:1px solid var(--border-strong);border-radius:6px;padding:5px 10px;cursor:pointer;}
+  .toggle-btn:hover{border-color:var(--accent-info);}
+  .add-prog-btn{border:1px dashed var(--border-strong);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text-secondary);background:var(--bg);min-width:110px;cursor:pointer;}
+  .add-prog-btn:hover{border-color:var(--accent-info);color:var(--accent-info);}
+  .hint{font-size:11px;color:var(--text-tertiary);margin-top:16px;}
+</style>
+</head>
+<body>
+
+<h1>Lackland Dental Support Squadron Laboratory</h1>
+<p class="sub">Click any text to edit it directly. Changes are saved in this file only when you re-save the HTML file (Ctrl/Cmd+S) from your browser, or use "Export as text list" for a quick copy.</p>
+
+<div class="toolbar">
+  <button onclick="document.querySelectorAll('.programs').forEach(p=>p.classList.remove('collapsed'));document.querySelectorAll('.toggle-btn').forEach(b=>b.textContent='Hide programs');">Expand all</button>
+  <button onclick="document.querySelectorAll('.programs').forEach(p=>p.classList.add('collapsed'));document.querySelectorAll('.toggle-btn').forEach(b=>b.textContent='Show programs');">Collapse all</button>
+  <button onclick="exportText()">Export as text list</button>
+</div>
+
+<div class="orgchart" id="chart">
+<ul>
+<li>
+  <div class="box lead">
+    <span class="t" contenteditable="true">Lt Col Johnston</span>
+    <span class="s" contenteditable="true">Laboratory director</span>
+  </div>
+  <ul>
+    <li>
+      <div class="box lead">
+        <span class="t" contenteditable="true">MSgt Kruss</span>
+        <span class="s" contenteditable="true">Flight chief</span>
+        <span class="binder" contenteditable="true">Binder needed</span>
+      </div>
+      <ul>
+        <li>
+          <div class="box">
+            <span class="t" contenteditable="true">Mr. Davis</span>
+            <span class="s" contenteditable="true">Director of training</span>
+          </div>
+          <ul>
+            <li>
+              <div class="box ncoic">
+                <span class="t" contenteditable="true">TSgt Beverly</span>
+                <span class="s" contenteditable="true">NCOIC, training</span>
+                <span class="binder" contenteditable="true">Binder needed</span>
+              </div>
+              <button class="toggle-btn" onclick="toggle(this,'p-training')">Show programs</button>
+              <ul class="programs collapsed" id="p-training">
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Sponsorship</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Continuing education</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Procedural guides</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Training plan</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">SOPs</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="add-prog-btn" onclick="addProgram('p-training')">+ Add program</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <div class="box">
+            <span class="t" contenteditable="true">Mr. Lopez</span>
+            <span class="s" contenteditable="true">Director of CDL operations</span>
+          </div>
+          <ul>
+            <li>
+              <div class="box ncoic">
+                <span class="t" contenteditable="true">SSgt Gountanti</span>
+                <span class="s" contenteditable="true">NCOIC, CDL</span>
+                <span class="binder" contenteditable="true">Binder needed</span>
+              </div>
+              <button class="toggle-btn" onclick="toggle(this,'p-cdl')">Show programs</button>
+              <ul class="programs collapsed" id="p-cdl">
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Equipment manager</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">HAZCOM</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Safety</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Infection control</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Shipping &amp; receiving</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Stone room</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">TIM file</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Gold register</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">CAD maintenance</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Equipment maintenance</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Logistics</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">SOPs</span><span class="role" contenteditable="true">Primary</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="add-prog-btn" onclick="addProgram('p-cdl')">+ Add program</li>
+              </ul>
+            </li>
+            <li>
+              <div class="box ncoic">
+                <span class="t" contenteditable="true">SSgt Mitchell</span>
+                <span class="s" contenteditable="true">NCOIC, Dunn</span>
+                <span class="binder" contenteditable="true">Binder needed</span>
+              </div>
+              <button class="toggle-btn" onclick="toggle(this,'p-dunn')">Show programs</button>
+              <ul class="programs collapsed" id="p-dunn">
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Equipment manager</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">HAZCOM</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Safety</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Infection control</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Shipping &amp; receiving</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Stone room</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">TIM file</span><span class="role" contenteditable="true">Alternate</span><span class="flag" contenteditable="true">Verify it exists</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Gold register</span><span class="role" contenteditable="true">Alternate</span><span class="flag" contenteditable="true">Needs to be created</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">CAD maintenance</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Equipment maintenance</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">Logistics</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="prog"><button class="remove" onclick="this.parentElement.remove()">×</button><span class="name" contenteditable="true">SOPs</span><span class="role" contenteditable="true">Alternate</span><span class="role" contenteditable="true">Binder needed</span></li>
+                <li class="add-prog-btn" onclick="addProgram('p-dunn')">+ Add program</li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</li>
+</ul>
+</div>
+
+<p class="hint">Tip: after editing, press Ctrl/Cmd+S in your browser to save an updated copy of this HTML file, or use "Export as text list" above to copy a plain-text summary.</p>
+
+<script>
+function toggle(btn, id){
+  const el = document.getElementById(id);
+  el.classList.toggle('collapsed');
+  btn.textContent = el.classList.contains('collapsed') ? 'Show programs' : 'Hide programs';
+}
+function addProgram(listId){
+  const list = document.getElementById(listId);
+  const addBtn = list.querySelector('.add-prog-btn');
+  const li = document.createElement('li');
+  li.className = 'prog';
+  li.innerHTML = '<button class="remove" onclick="this.parentElement.remove()">×</button>' +
+                 '<span class="name" contenteditable="true">New program</span>' +
+                 '<span class="role" contenteditable="true">Binder needed</span>';
+  list.insertBefore(li, addBtn);
+  li.querySelector('.name').focus();
+}
+function exportText(){
+  let lines = [];
+  function walk(li, depth){
+    const box = li.querySelector(':scope > .box');
+    if(box){
+      const parts = [...box.querySelectorAll('.t,.s,.binder')].map(e=>e.textContent.trim()).filter(Boolean);
+      lines.push('  '.repeat(depth) + '- ' + parts.join(' — '));
+    }
+    const progList = li.querySelector(':scope > .programs');
+    if(progList){
+      progList.querySelectorAll(':scope > .prog').forEach(p=>{
+        const parts = [...p.querySelectorAll('.name,.role,.flag')].map(e=>e.textContent.trim()).filter(Boolean);
+        lines.push('  '.repeat(depth+1) + '• ' + parts.join(' — '));
+      });
+    }
+    li.querySelectorAll(':scope > ul > li').forEach(child => walk(child, depth+1));
+  }
+  document.querySelectorAll('#chart > ul > li').forEach(li => walk(li, 0));
+  const text = lines.join('\n');
+  navigator.clipboard.writeText(text).then(()=>{
+    alert('Copied to clipboard:\n\n' + text);
+  }).catch(()=>{
+    alert(text);
+  });
+}
+</script>
+
+</body>
+</html>
